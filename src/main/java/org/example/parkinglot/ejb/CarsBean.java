@@ -1,4 +1,4 @@
- package org.example.parkinglot.ejb;
+package org.example.parkinglot.ejb;
 
 import jakarta.ejb.EJBException;
 import jakarta.ejb.Stateless;
@@ -20,23 +20,23 @@ public class CarsBean {
     @PersistenceContext
     EntityManager entityManager;
 
-    public List<Car> findAllCars() {
+    public List<CarDto> findAllCars() {
         LOG.info("msg: \"findAllCars\"");
         try {
             TypedQuery<Car> typedQuery = entityManager.createQuery("SELECT c FROM Car c", Car.class);
             List<Car> cars = typedQuery.getResultList();
-            return copyCar(cars);
+            return copyCarsToDto(cars);
         } catch (Exception ex) {
             throw new EJBException(ex);
         }
     }
 
-    private List<Car> copyCarsToDto(List<Car> cars) {
-        List<Car> dtos = new ArrayList<Car>();
+    private List<CarDto> copyCarsToDto(List<Car> cars) {
+        List<CarDto> dtos = new ArrayList<CarDto>();
         for (Car car : cars) {
-            Car dto = new Car(
+            CarDto dto = new CarDto(
                     car.getId(),
-                    car.getli(),
+                    car.getLicensePlate(),
                     car.getParkingSpot(),
                     car.getOwner().getUsername()
             );

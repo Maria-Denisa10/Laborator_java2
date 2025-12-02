@@ -5,13 +5,24 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "car")
 public class Car {
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "cars")
-    private String cars;
+    @Column(name = "parking_spot")
+    private String parkingSpot;
+
+    @Column(name = "license_plate")
+    private String licensePlate;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
@@ -25,20 +36,19 @@ public class Car {
         this.owner = owner;
     }
 
-    public String getCars() {
-        return cars;
+    public String getParkingSpot() {
+        return parkingSpot;
     }
 
-    public void setCars(String cars) {
-        this.cars = cars;
+    public void setParkingSpot(String parkingSpot) {
+        this.parkingSpot = parkingSpot;
     }
 
-    public Long getId() {
-        return id;
+    public String getLicensePlate() {
+        return licensePlate;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
     }
-
 }
