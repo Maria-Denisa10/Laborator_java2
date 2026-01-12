@@ -2,37 +2,44 @@ package org.example.parkinglot.ejb;
 
 import jakarta.ejb.EJBException;
 import jakarta.ejb.Stateless;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Logger;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.example.parkinglot.common.UserDto;
 import org.example.parkinglot.entities.User;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
+import org.example.parkinglot.entities.UserGroup;
+import org.example.parkinglot.servlets.PasswordBean;
 
 @Stateless
-public class UsersBeans{
+public class UsersBeans {
     private static final Logger LOG = Logger.getLogger(UsersBeans.class.getName());
 
     @PersistenceContext
     EntityManager entityManager;
 
+
+    @Inject
+    PasswordBean passwordBean;
+
     public List<UserDto> findAllUsers() {
-        LOG.info("findAllUsers()");
+        LOG.info("msg: \"findAllUsers\"");
         try {
-            TypedQuery<User> query = entityManager.createQuery("SELECT u FROM User u", User.class);
-            List<User> users = query.getResultList();
+            TypedQuery<User> typedQuery = entityManager.createQuery("SELECT u FROM User u", User.class);
+            List<User> users = typedQuery.getResultList();
             return copyUsersToDto(users);
         } catch (Exception ex) {
             throw new EJBException(ex);
         }
     }
 
-    private List<UserDto> copyUsersToDto(List<User> users) {
-        List<UserDto> dtos = new ArrayList<>();
-        for (User user : users) {
+    private List<UserDto> copyUsersToDto(List<User> userList) {
+        List<UserDto> dtos = new ArrayList<UserDto>();
+        for (User user : userList) {
             UserDto dto = new UserDto(
                     user.getId(),
                     user.getUsername(),
@@ -42,4 +49,34 @@ public class UsersBeans{
         }
         return dtos;
     }
+
+    public void createUser(String username, String email, String password, Collection<String> groups) {
+        LOG.info("createUser");
+        User newUser = new User();
+        newUser.setUsername(username);
+        newUser.setEmail(email);
+        newUser.setPassword(passwordBean.convertToSha256(password)); // Uses the injected bean
+        entityManager.persist(newUser);
+        assignGroupsToUser(username, groups);
+    }
+
+    private void assignGroupsToUser(String username, Collection<String> groups) {
+        LOG.info("assignGroupsToUser");
+        for (String group : groups) {
+            UserGroup userGroup = new UserGroup();
+            userGroup.setUsername(username);
+            userGroup.setUserGroup(group);
+            entityManager.persist(userGroup);
+        }
+    }
+    public Collection<String> findUsernamesByIds(Collection<Long> userIds) {
+        List<String > usernames=
+                entityManager.createQuery("SELECT u.username FROM User u WHERE u.id IN :userIds", String.class)
+                        .setParameter("userIds", userIds)
+                        .getResultList();
+        return usernames;
+    }
+
+
+
 }

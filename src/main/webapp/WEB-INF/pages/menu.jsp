@@ -1,3 +1,11 @@
+
+<c:if test="${pageContext.request.isUserInRole('READ_CARS')}">
+    <a class="nav-link" href="${pageContext.request.contextPath}/Cars">Cars</a>
+</c:if>
+<c:if test="${pageContext.request.isUserInRole('READ_USERS')}">
+    <a class="nav-link" href="${pageContext.request.contextPath}/Users">Users</a>
+</c:if>
+
 <header data-bs-theme="pink">
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <div class="container-fluid">
